@@ -4,11 +4,25 @@ function notifyHighPriority(priority, queueName) {
   }
 }
 
+class TaskQueueProcessor {
+  constructor(queue) {
+    this.queue = queue;
+  }
+
+  startIfNeeded() {
+    if (this.queue.tasks.length === 1) {
+      console.log(`Starting queue ${this.queue.queueName}.`);
+      this.queue.isProcessing = true;
+    }
+  }
+}
+
 class TaskQueue {
   constructor(name) {
     this.queueName = name;
     this.tasks = [];
     this.isProcessing = false;
+    this.processor = new TaskQueueProcessor(this);
   }
 
   addTask(taskFn, priority) {
@@ -24,17 +38,6 @@ class TaskQueue {
     });
 
     notifyHighPriority(priority, this.queueName);
-  }
-
-  startProcessingIfNeeded() {
-    if (this.tasks.length === 1) {
-      console.log(`Starting queue ${this.queueName}.`);
-      this._startProcessing();
-    }
-  }
-
-  _startProcessing() {
-    this.isProcessing = true;
-    // ... logic to process tasks ...
+    this.processor.startIfNeeded();
   }
 }
